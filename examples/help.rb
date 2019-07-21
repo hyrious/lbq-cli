@@ -20,6 +20,7 @@ main do
     if File.exist? file
       script = <<~RUBY
         def params
+          puts
           yield if block_given?
         end
 
@@ -45,6 +46,9 @@ main do
             first = "\#{first}," if first
             printf "%5s %-22s %s\n", first, args['--'].shift, args[''].shift
           end
+        end
+
+        def missing
         end
 
         def main

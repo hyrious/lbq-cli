@@ -75,7 +75,6 @@ module Lbq
     module_function
 
     def need_init?
-      true or
       !Dir.exist? V.path '~/lbq'
     end
 
@@ -90,6 +89,7 @@ module Lbq
     def init_example_scripts
       files = Dir.glob File.expand_path '../../examples/*', __dir__
       dist = File.expand_path '~/lbq'
+      Dir.mkdir dist unless Dir.exist? dist
       files.each do |file|
         copy_file file, File.join(dist, File.basename(file))
       end
@@ -101,7 +101,7 @@ module Lbq
     end
 
     # execute 'cmd', '--arg=42', '-a', '--switch'
-    def execute cmd, *args
+    def execute cmd='help', *args
       init_example_scripts if need_init?
       raise NotFoundError, cmd unless exist? cmd
       load_script cmd, *args
