@@ -2,9 +2,109 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
     <title>LBQ CLI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft Yahei UI Light', Segoe UI, sans-serif;
+        }
+        pre, code {
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            margin-top: 2.5em;
+            white-space: pre-wrap;
+            word-break: break-all;
+            padding: 8px;
+            position: relative;
+            box-shadow: 0 0 0 1px #0c0c0c inset;
+            font-size: 14px;
+        }
+        h1, h2 {
+            margin: 0;
+            padding: 8px;
+            color: #f2f2f2;
+            background-color: #0c0c0c;
+            font-size: 22px;
+            font-weight: normal;
+            font-family: 'Microsoft Yahei UI Light', Segoe UI, sans-serif;
+        }
+        h2 {
+            font-size: 16px;
+        }
+        pre::before {
+            content: attr(data-title);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            padding: 4px 8px;
+            color: #f2f2f2;
+            background-color: #0c0c0c;
+        }
+    </style>
 </head>
 <body>
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quidem quas qui voluptatem beatae nostrum delectus ea similique deserunt molestiae! Maxime qui sapiente debitis enim voluptate, quae accusantium recusandae placeat similique.
+    <h1>Example <code>LBQ-CLI</code> Scripts</h1>
+    <pre data-title="fate luck"><code>params do
+  option('--subcommand', '--command', '-c', 'luck', index: 0)
+end
+
+main do
+  case params[:c]
+  when 'luck'
+    luck = rand 0..100
+    progress = '|' * luck + ' ' * (100 - luck)
+    printf "%3d%% [%s]", luck, progress
+    puts
+  end 
+end</code></pre>
+    <pre data-title="todo"><code>class Storage
+  def initialize file
+    @file = file
+  end
+
+  def load_data
+    if File.exist? @file
+      open(@file, 'rb') { |f| Marshal.load f }
+    end
+  end
+
+  def save_data obj
+    open(@file, 'wb') { |f| Marshal.dump obj, f }
+  end
+end
+
+S = Storage.new File.expand_path 'todo.data', __dir__
+
+params do
+  option('--task', '-t', 'what to do?', index: 0)
+  option('--delete', '-d', 'which to delete?', type: Integer)
+  switch('--delete', '-d', 'delete which?')
+  switch('--clear', '-c', 'remove all todos')
+end
+
+main do
+  data = S.load_data || []
+  if new_task = params[:t]
+    data << new_task
+    S.save_data data
+  elsif old_task = params[:d]
+    if old_task == true
+      puts 'Run "todo -d <id>" to delete task.'
+    else
+      data.delete_at old_task
+      S.save_data data
+    end
+  elsif params[:c]
+    S.save_data data.clear
+  end
+  data.each_with_index do |task, i|
+    puts "[#{i}] #{task}"
+  end
+end</code></pre>
+    <h2>Windows Only <small>(Some of them can be easily converted to *NIX systems.)</small></h2>
 </body>
 </html>
