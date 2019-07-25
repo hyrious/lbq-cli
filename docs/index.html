@@ -48,8 +48,23 @@
 </head>
 <body>
     <h1>Example <code>LBQ-CLI</code> Scripts</h1>
+    <pre data-title="edit"><code>params do
+  option('--command', '-c', '--file', '-f', 'the script to edit', index: 0)
+end
+
+main do
+  if params[:c]
+    file = "#{params[:c]}.rb"
+    full_path = File.expand_path(file, __dir__)
+    unless File.exist? full_path
+      puts "Not found #{file}"
+      next
+    end
+    system 'subl', full_path
+  end
+end</code></pre>
     <pre data-title="fate luck"><code>params do
-  option('--subcommand', '--command', '-c', 'luck', index: 0)
+  option('--command', '-c', 'luck', index: 0)
 end
 
 main do
@@ -81,6 +96,8 @@ S = Storage.new File.expand_path 'todo.data', __dir__
 
 params do
   option('--task', '-t', 'what to do?', index: 0)
+  option('--edit', '-e', 'which to edit?', type: Integer)
+  switch('--edit', '-e', 'edit which?')
   option('--delete', '-d', 'which to delete?', type: Integer)
   switch('--delete', '-d', 'delete which?')
   switch('--clear', '-c', 'remove all todos')
@@ -89,14 +106,22 @@ end
 main do
   data = S.load_data || []
   if new_task = params[:t]
-    data << new_task
+    if old_task = params[:e]
+      data[old_task] = new_task
+    else
+      data << new_task
+    end
     S.save_data data
   elsif old_task = params[:d]
     if old_task == true
-      puts 'Run "todo -d <id>" to delete task.'
+      puts 'Run "todo -d &lt;id&gt;" to delete task.'
     else
       data.delete_at old_task
       S.save_data data
+    end
+  elsif old_task = params[:e]
+    if old_task == true
+      puts 'Run "todo -e &lt;id&gt; &lt;todo&gt;" to edit task.'
     end
   elsif params[:c]
     S.save_data data.clear
