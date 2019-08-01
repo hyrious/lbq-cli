@@ -131,5 +131,29 @@ main do
   end
 end</code></pre>
     <h2>Windows Only <small>(Some of them can be easily converted to *NIX systems.)</small></h2>
+    <pre data-title="rerun">params do
+  option('--file', '--dir', '-d', '--watch', '-w', index: 0)
+end
+
+@pid = 0
+@mtime = 0
+
+main do
+  if file = params[:file]
+    loop do
+      @mtime = File.mtime file
+      @pid = spawn 'ruby', file
+      puts "##{$$} -> ##{@pid}"
+      loop do
+        sleep 5
+        break if File.mtime(file) != @mtime
+      end
+      system 'taskkill', '/F', '/PID', @pid.to_s
+    end
+  end
+rescue Interrupt
+  system 'taskkill', '/F', '/PID', @pid.to_s
+  puts 'bye'
+end<code></code></pre>
 </body>
 </html>
