@@ -123,7 +123,9 @@ module Lbq
     def load_script cmd, *argv
       filename = File.expand_path "~/lbq/#{cmd}.rb"
       script = <<~RUBY
-        ARGV.clear.push *#{argv.inspect}
+        # coding: utf-8
+
+        ARGV.clear.push *#{argv.map { |e| e.dup.encode('utf-8') }.inspect}
 
         def arg2key arg
           (arg.start_with?('--') ? arg[2..-1].tr('-', '_') : arg[1..-1]).to_sym
@@ -217,7 +219,7 @@ module Lbq
       RUBY
       eval <<~RUBY, TOPLEVEL_BINDING.dup, filename, -script.lines.size
         #{script}
-        #{File.read filename}
+        #{File.read filename, encoding: 'utf-8'}
       RUBY
     end
   end
