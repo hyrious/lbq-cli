@@ -1,159 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hans-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
-    <title>LBQ CLI</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Microsoft Yahei UI Light', Segoe UI, sans-serif;
-        }
-        pre, code {
-            font-family: 'Courier New', monospace;
-        }
-        pre {
-            margin-top: 2.5em;
-            white-space: pre-wrap;
-            word-break: break-all;
-            padding: 8px;
-            position: relative;
-            box-shadow: 0 0 0 1px #0c0c0c inset;
-            font-size: 14px;
-        }
-        h1, h2 {
-            margin: 0;
-            padding: 8px;
-            color: #f2f2f2;
-            background-color: #0c0c0c;
-            font-size: 22px;
-            font-weight: normal;
-            font-family: 'Microsoft Yahei UI Light', Segoe UI, sans-serif;
-        }
-        h2 {
-            font-size: 16px;
-        }
-        pre::before {
-            content: attr(data-title);
-            position: absolute;
-            bottom: 100%;
-            left: 0;
-            padding: 4px 8px;
-            color: #f2f2f2;
-            background-color: #0c0c0c;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>lbq-cli scripts</title>
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="https://hyrious.me/style.css">
+<script src="https://hyrious.me/main.js"></script>
 </head>
 <body>
-    <h1>Example <code>LBQ-CLI</code> Scripts</h1>
-    <pre data-title="edit"><code>params do
-  option('--command', '-c', '--file', '-f', 'the script to edit', index: 0)
-end
-
-main do
-  if params[:c]
-    file = "#{params[:c]}.rb"
-    full_path = File.expand_path(file, __dir__)
-    unless File.exist? full_path
-      puts "Not found #{file}"
-      next
-    end
-    system 'subl', full_path
-  end
-end</code></pre>
-    <pre data-title="fate luck"><code>params do
-  option('--command', '-c', 'luck', index: 0)
-end
-
-main do
-  case params[:c]
-  when 'luck'
-    luck = rand 0..100
-    progress = '|' * luck + ' ' * (100 - luck)
-    printf "%3d%% [%s]", luck, progress
-    puts
-  end 
-end</code></pre>
-    <pre data-title="todo"><code>class Storage
-  def initialize file
-    @file = file
-  end
-
-  def load_data
-    if File.exist? @file
-      open(@file, 'rb') { |f| Marshal.load f }
-    end
-  end
-
-  def save_data obj
-    open(@file, 'wb') { |f| Marshal.dump obj, f }
-  end
-end
-
-S = Storage.new File.expand_path 'todo.data', __dir__
-
-params do
-  option('--task', '-t', 'what to do?', index: 0)
-  option('--edit', '-e', 'which to edit?', type: Integer)
-  switch('--edit', '-e', 'edit which?')
-  option('--delete', '-d', 'which to delete?', type: Integer)
-  switch('--delete', '-d', 'delete which?')
-  switch('--clear', '-c', 'remove all todos')
-end
-
-main do
-  data = S.load_data || []
-  if new_task = params[:t]
-    if old_task = params[:e]
-      data[old_task] = new_task
-    else
-      data << new_task
-    end
-    S.save_data data
-  elsif old_task = params[:d]
-    if old_task == true
-      puts 'Run "todo -d &lt;id&gt;" to delete task.'
-    else
-      data.delete_at old_task
-      S.save_data data
-    end
-  elsif old_task = params[:e]
-    if old_task == true
-      puts 'Run "todo -e &lt;id&gt; &lt;todo&gt;" to edit task.'
-    end
-  elsif params[:c]
-    S.save_data data.clear
-  end
-  data.each_with_index do |task, i|
-    puts "[#{i}] #{task}"
-  end
-end</code></pre>
-    <h2>Windows Only <small>(Some of them can be easily converted to *NIX systems.)</small></h2>
-    <pre data-title="rerun">params do
-  option('--file', '--dir', '-d', '--watch', '-w', index: 0)
-end
-
-@pid = 0
-@mtime = 0
-
-main do
-  if file = params[:file]
-    loop do
-      @mtime = File.mtime file
-      @pid = spawn 'ruby', file
-      puts "##{$$} -> ##{@pid}"
-      loop do
-        sleep 5
-        break if File.mtime(file) != @mtime
-      end
-      system 'taskkill', '/F', '/PID', @pid.to_s
-    end
-  end
-rescue Interrupt
-  system 'taskkill', '/F', '/PID', @pid.to_s
-  puts 'bye'
-end<code></code></pre>
+  <article>
+    
+    <p class="copyright">&copy; 2020 hyrious</p>
+  </article>
 </body>
 </html>
